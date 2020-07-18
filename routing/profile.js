@@ -62,31 +62,40 @@ router.get("/watched",authentic,async function (req, res, next)
 // get the last watched recipes of the certain logged in user
 router.get("/lastRecipes",authentic,async function (req, res, next)
 {
-  console.log("enter to lastRecipes")
-  let watchs_list=[];
-  const watchs = await DBOperation.getLastRecipes(req.session.user_id, next).catch(err=>next(err));
-  if(watchs.length===0)
-  {
-    res.status(201).send({message: "no watched recipes for user"});
-    console.log("enter to 201")
+  try {
+    let watchs_list=[];
+    const watchs = await DBOperation.getLastRecipes(req.session.user_id, next).catch(err=>next(err));
+    if(watchs.length===0)
+    {
+      res.status(201).send({message: "no watched recipes for user"});
+      console.log("enter to 201")
+    }
+    else
+    {
+      watchs.map((watch)=>watchs_list.push(watch.recipe_id));
+      let previewRecipes= await profileHandler.getPreviewRecipes(watchs_list);
+      await profileHandler.getWatchAndFavorite(req.session.user_id,previewRecipes);
+      console.log(previewRecipes)
+      res.send({previewRecipes: previewRecipes} );
+    } 
   }
-  else
+  catch(error)
   {
-    watchs.map((watch)=>watchs_list.push(watch.recipe_id));
-    let previewRecipes= await profileHandler.getPreviewRecipes(watchs_list);
-    await profileHandler.getWatchAndFavorite(req.session.user_id,previewRecipes);
-    console.log(previewRecipes)
-
-    res.send({previewRecipes: previewRecipes} );
-  } 
+    next(error);
+  }
+  
 });
 
 // get a certain personal recipe by id of the certain logged in user
 router.get("/personalRecipes/:id",authentic, async function (req, res, next) {
-  const { id } = req.params;
-  const fullRecipe= await profileHandler.getPersonalFullRecipe(req.session.user_id,id, next).catch(err=>next(err));
-  res.status(200).send({ fullRecipe: fullRecipe });
-
+  try{
+    const { id } = req.params;
+    const fullRecipe= await profileHandler.getPersonalFullRecipe(req.session.user_id,id, next).catch(err=>next(err));
+    res.status(200).send({ fullRecipe: fullRecipe });
+  }
+  catch(error){
+    next(error);
+  }
 });
 
 // get all the personal recipes of the certain logged in user
@@ -164,7 +173,9 @@ router.get("/recipesProfile",authentic, async function(req, res,next)
   try
   {
     await profileHandler.getWatchAndFavorite(req.session.user_id,req.session.previewRecipes);
-    res.status(200).send({previewRecipes: req.session.previewRecipes})
+    let previewRecipes=req.session.previewRecipes;
+    req.session.previewRecipe="";
+    res.status(200).send({previewRecipes: previewRecipes})
   }
   catch(err)
   {

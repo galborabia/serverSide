@@ -127,7 +127,7 @@ exports.getRandomRecipes = function getRandomRecipes() {
 }
 
 // search recipe by name - search in api sponcolar
-exports.searchRecipe = function searchRecipe(queryParams)
+exports.searchRecipe = async function searchRecipe(queryParams)
 {
     if(!queryParams.query || queryParams.query ==="" )
     {
@@ -154,7 +154,7 @@ exports.searchRecipe = function searchRecipe(queryParams)
     {
         intolerance=queryParams.intolerance;
     }
-    return axios.get(`${api_domain}/search`, {
+    return await axios.get(`${api_domain}/search`, {
       params: {
           query: name,
           cuisine: cuisine,
@@ -168,9 +168,9 @@ exports.searchRecipe = function searchRecipe(queryParams)
   }
 
   // return the recipe details for certain recipe id
-  exports.getRecipeInfo = function getRecipeInfo(id) {
+  exports.getRecipeInfo = async function getRecipeInfo(id) {
       try{
-        return axios.get(`${api_domain}/${id}/information`, {
+        return await axios.get(`${api_domain}/${id}/information`, {
             params: {
               includeNutrition: false,
               apiKey: process.env.spooncular_apiKey

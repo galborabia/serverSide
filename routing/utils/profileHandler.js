@@ -58,12 +58,31 @@ exports.getPersonalFullRecipe= async function getPersonalFullRecipe(user_id,reci
 {
     let fullRecipe = new Object();
     const ingredients=  await DBOperation.getIngredientsRecipe(recipe_id);
-    const instructions=  await DBOperation.getInstructionsRecipe(recipe_id);
+    const instructionsData=  await DBOperation.getInstructionsRecipe(recipe_id);
     const personalRecipe = await DBOperation.getPersonalPreviousRecipe(user_id,recipe_id);
+    const instructions = createInstructions(instructionsData);
     fullRecipe.previewRecipe=recipesHandler.createPreviewRecipe(personalRecipe[0]);
+    fullRecipe.servinges=personalRecipe[0].servinges;
     fullRecipe.ingredients=ingredients;
     fullRecipe.instructions=instructions;
     return fullRecipe;
+}
+
+function createInstructions(recipeInstructions){
+    let instructions = new Array();
+    instructions[0]=new Object();
+    instructions[0].steps=new Array();
+    for(let i=0; i<recipeInstructions.length;i++)
+    {
+        instructions[0].steps[i]= new Object();
+        instructions[0].steps[i].description=recipeInstructions[i].step_description;
+        instructions[0].steps[i].number=i+1;
+        instructions[0].steps[i].equipment = new Array();
+        instructions[0].steps[i].ingredients = new Array();
+        instructions[0].steps[i].equipment.push(recipeInstructions[i].equipment);
+        instructions[0].steps[i].ingredients.push(recipeInstructions[i].ingredients);
+    }
+    return instructions;
 }
 
 // return full family recipe details
@@ -75,8 +94,9 @@ exports.getFamilyFullRecipe= async function getFamilyFullRecipe(user_id,recipe_i
         return fullRecipe;
     }
     const ingredients = await DBOperation.getIngredientsRecipe(recipe_id);
-    const instructions = await DBOperation.getInstructionsRecipe(recipe_id);
+    const instructionsData = await DBOperation.getInstructionsRecipe(recipe_id);
     fullRecipe.previewRecipe= recipesHandler.createPreviewRecipe(FamilyFullRecipe[0]);
+    const instructions = createInstructions(instructionsData);
     fullRecipe.servinges =  FamilyFullRecipe[0].servinges;
     fullRecipe.ingredients=ingredients;
     fullRecipe.instructions=instructions;

@@ -6,7 +6,7 @@ var recipesHandler=require("./utils/recipesHandler");
 router.get("/Information", async function (req, res, next) {
   try
   {
-    const recipe = await recipesHandler.getRecipeInfo(req.query.id,next);
+    const recipe = await recipesHandler.getRecipeInfo(req.query.id,next).catch();
     const fullRecipe=recipesHandler.getFullRecipe(recipe);
     req.session.fullRecipe=fullRecipe;
     if(req.session && req.session.user_id){

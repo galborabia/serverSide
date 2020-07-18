@@ -12,8 +12,10 @@ var app = express();
 const cors = require("cors");
 const cookieParser= require("cookie-parser");
 
+// gedalia
+
 const corsConfig = {
-  origin: 'http://localhost:8080',
+  origin: 'http://localhost:8081',
   credentials: true  
 };
 app.use(cors(corsConfig));
