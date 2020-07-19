@@ -59,7 +59,7 @@ router.post("/register",async function (req, res,next)
  });
 
   //logout route
- router.get("/logout", async function(req, res, next) {
+ router.get("/logout",function(req, res, next) {
   try
   {
     if (req.session.user_id!=undefined){
